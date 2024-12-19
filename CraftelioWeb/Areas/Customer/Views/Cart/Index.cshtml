@@ -1,0 +1,198 @@
+﻿@model Craftelio.Models.ViewModels.ShoppingCartVM
+
+<div class="cart-container">
+    <h2 class="cart-title">Your Shopping Cart</h2>
+    @if (Model.ListCart.Any())
+    {
+        <div class="cart-items">
+            @foreach (var item in Model.ListCart)
+            {
+                <div class="cart-item" id="cart-item-@item.Id">
+                    <img src="@item.Product.ImageUrl" alt="@item.Product.Title" class="cart-item-image">
+                    <div class="cart-item-details">
+                        <h3 class="cart-item-title">@item.Product.Title</h3>
+                        <p class="cart-item-description">@Html.Raw(item.Product.Description.Length > 100 ? item.Product.Description.Substring(0, 100) + "..." : item.Product.Description)</p>
+                        <div class="cart-item-actions">
+                            <div class="quantity-control">
+                                <button class="quantity-btn" onclick="updateQuantity('@item.Id', 'minus')">-</button>
+                                <span class="quantity" id="item-quantity-@item.Id">@item.Count</span>
+                                <button class="quantity-btn" onclick="updateQuantity('@item.Id', 'plus')">+</button>
+                            </div>
+                            <span class="cart-item-price" id="item-price-@item.Id">@item.Price.ToString("C", new System.Globalization.CultureInfo("en-IN"))</span>
+                            <button class="remove-btn" onclick="removeItem('@item.Id')">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="cart-summary">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total">@Model.OrderHeader.OrderTotal.ToString("C", new System.Globalization.CultureInfo("en-IN"))</span>
+            </div>
+            <a asp-action="Summary" class="checkout-btn">Proceed to Checkout</a>
+        </div>
+    }
+    else
+    {
+        <p class="empty-cart-message">Your cart is empty. Discover amazing products in our store!</p>
+        <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="continue-shopping-btn">Continue Shopping</a>
+    }
+</div>
+
+<script>
+    function updateQuantity(cartId, action) {
+        $.ajax({
+            url: '/Customer/Cart/' + action,
+            data: { cartId: cartId },
+            success: function (response) {
+                // Assuming response contains updated cart data
+                $('#item-quantity-' + cartId).text(response.quantity);
+                $('#item-price-' + cartId).text(response.itemPrice);
+                $('#cart-total').text(response.cartTotal);
+            },
+            error: function () {
+                alert("Error updating quantity");
+            }
+        });
+    }
+
+    function removeItem(cartId) {
+        $.ajax({
+            url: '/Customer/Cart/Remove',
+            data: { cartId: cartId },
+            success: function (response) {
+                $('#cart-item-' + cartId).remove(); // Remove the cart item from the UI
+                $('#cart-total').text(response.cartTotal); // Update the total
+            },
+            error: function () {
+                alert("Error removing item");
+            }
+        });
+    }
+</script>
+
+
+<style>
+    .cart-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Arial', sans-serif;
+    }
+    .cart-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .cart-items {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .cart-item {
+        display: flex;
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .cart-item-image {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+    }
+    .cart-item-details {
+        flex: 1;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    .cart-item-title {
+        font-size: 18px;
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .cart-item-description {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    .cart-item-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .quantity-control {
+        display: flex;
+        align-items: center;
+    }
+    .quantity-btn {
+        background-color: #f0f0f0;
+        border: none;
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .quantity-btn:hover {
+        background-color: #e0e0e0;
+    }
+    .quantity {
+        margin: 0 10px;
+        font-size: 16px;
+    }
+    .cart-item-price {
+        font-size: 18px;
+        font-weight: bold;
+        color: #4a4a4a;
+    }
+    .remove-btn {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .remove-btn:hover {
+        background-color: #ff3333;
+    }
+    .cart-summary {
+        margin-top: 20px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .cart-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .checkout-btn, .continue-shopping-btn {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background-color: #4CAF50;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        font-size: 18px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    .checkout-btn:hover, .continue-shopping-btn:hover {
+        background-color: #45a049;
+    }
+    .empty-cart-message {
+        text-align: center;
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+</style>

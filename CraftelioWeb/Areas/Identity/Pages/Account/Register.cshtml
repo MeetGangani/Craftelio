@@ -1,0 +1,114 @@
+﻿@page
+@using Craftelio.Utility
+@model RegisterModel
+@{
+    ViewData["Title"] = "Create a new account.";
+}
+<style>
+    /* Customize the hover state for the register button */
+    #registerSubmit {
+        background-color: #6C37FF; /* Original button color */
+        border-color: #6C37FF; /* Match border to button color */
+        transition: background-color 0.3s ease;
+    }
+
+        #registerSubmit:hover {
+            background-color: #5127CC; /* Darker purple for hover */
+            border-color: #5127CC; /* Match border to hover color */
+            color: white; /* Ensure text is legible */
+        }
+</style>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-8 col-lg-6">
+        <div class="text-center pt-4">
+            @if (User.IsInRole(SD.Role_Admin))
+            {
+                <h1>Register - ADMIN PORTAL</h1>
+            }
+            else
+            {
+                <h1>@ViewData["Title"]</h1>
+            }
+        </div>
+        <form id="registerForm" class="row" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-floating py-2 col-12">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                <label asp-for="Input.Email"></label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.Name" class="form-control" aria-required="true" />
+                <label asp-for="Input.Name"></label>
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.PhoneNumber" class="form-control" aria-required="true" />
+                <label asp-for="Input.PhoneNumber"></label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.StreetAddress" class="form-control" aria-required="true" />
+                <label asp-for="Input.StreetAddress"></label>
+                <span asp-validation-for="Input.StreetAddress" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.City" class="form-control" aria-required="true" />
+                <label asp-for="Input.City"></label>
+                <span asp-validation-for="Input.City" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.State" class="form-control" aria-required="true" />
+                <label asp-for="Input.State"></label>
+                <span asp-validation-for="Input.State" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.PostalCode" class="form-control" aria-required="true" />
+                <label asp-for="Input.PostalCode"></label>
+                <span asp-validation-for="Input.PostalCode" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.Password"></label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.ConfirmPassword"></label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            @if (User.IsInRole(SD.Role_Admin))
+            {
+                <div class="form-floating py-2 col-6">
+                    <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select">
+                        <option disabled selected>-Select Role-</option>
+                    </select>
+                </div>
+                <div class="form-floating py-2 col-6">
+                    <select asp-for="Input.CompanyId" style="display:none;" asp-items="@Model.Input.CompanyList" class="form-select">
+                        <option disabled selected>-Select Company-</option>
+                    </select>
+                </div>
+            }
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-primary">Register</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#Input_Role').change(function () {
+                var selection = $('#Input_Role Option:Selected').text();
+                if (selection != 'Company') {
+                    $('#Input_CompanyId').hide();
+                } else {
+                    $('#Input_CompanyId').show();
+                }
+            })
+        })
+    </script>
+}

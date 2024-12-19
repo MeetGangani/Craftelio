@@ -1,0 +1,23 @@
+﻿
+@model CategoryViewModel
+
+<h2>@Model.Category.Name</h2>
+
+<div class="row">
+    @foreach (var product in Model.Products)
+    {
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Title">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Title</h5>
+                    <p class="card-text">@product.Description</p>
+                    <p class="card-text">Price: $@product.Price</p>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-primary">Add to Cart</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

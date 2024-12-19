@@ -1,0 +1,253 @@
+﻿@model Craftelio.Models.ViewModels.ShoppingCartVM
+@using Microsoft.Extensions.Options
+@inject IOptions<Craftelio.Utility.StripeSettings> Stripe
+
+<style>
+    .custom-form-control {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .custom-form-control:focus {
+        outline: none;
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+    
+    .custom-form-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    
+    .custom-validation-message {
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+    
+    .custom-card {
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .sticky-container {
+        position: sticky;
+        top: 1rem;
+    }
+
+    .grid-container {
+        display: grid;
+        gap: 2rem;
+    }
+
+   
+
+    .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-container {
+        background-color: #1f2937;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+    }
+
+    .back-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: #93c5fd;
+        border: 1px solid #93c5fd;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+        background-color: rgba(147, 197, 253, 0.1);
+    }
+
+    .submit-button {
+        width: 100%;
+        background-color: #2563eb;
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .submit-button:hover {
+        background-color: #1d4ed8;
+    }
+
+    .delivery-info {
+        background-color: #eff6ff;
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+
+    .product-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .product-title {
+        font-weight: 500;
+        color: #1f2937;
+    }
+
+    .product-quantity {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .total-amount {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2563eb;
+    }
+
+    .icon-small {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+    }
+
+    .icon-medium {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+    }
+
+    .rupee-amount::before {
+        content: '₹';
+    }
+</style>
+
+<form method="post" class="py-8">
+    <div class="container mx-auto" style="max-width: 72rem; padding: 0 1rem;">
+        <div class="custom-card">
+            <div class="header-container flex-between">
+                <div class="flex-between" style="gap: 0.5rem;">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span style="font-size: 1.125rem; font-weight: 600;">Order Summary</span>
+                </div>
+                <a asp-action="Index" class="back-button">Back to Cart</a>
+            </div>  
+
+            <div style="padding: 1.5rem;">
+                <div class="grid-container">
+                    <!-- Shipping Details -->
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 1.5rem;">
+                            Shipping Details
+                        </h2>
+
+                       @*  <div style="display: grid; gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;"> *@
+                        <div style="padding: 1.5rem;">
+                            <div class="grid-container">
+                                <div>
+                                    <label asp-for="OrderHeader.Name" class="custom-form-label">Name</label>
+                                    <input asp-for="OrderHeader.Name" class="custom-form-control" />
+                                    <span asp-validation-for="OrderHeader.Name" class="custom-validation-message"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="OrderHeader.PhoneNumber" class="custom-form-label">Phone</label>
+                                    <input asp-for="OrderHeader.PhoneNumber" class="custom-form-control" />
+                                    <span asp-validation-for="OrderHeader.PhoneNumber" class="custom-validation-message"></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label asp-for="OrderHeader.StreetAddress" class="custom-form-label">Street Address</label>
+                                <input asp-for="OrderHeader.StreetAddress" class="custom-form-control" />
+                                <span asp-validation-for="OrderHeader.StreetAddress" class="custom-validation-message"></span>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                                <div>
+                                    <label asp-for="OrderHeader.City" class="custom-form-label">City</label>
+                                    <input asp-for="OrderHeader.City" class="custom-form-control" />
+                                    <span asp-validation-for="OrderHeader.City" class="custom-validation-message"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="OrderHeader.State" class="custom-form-label">State</label>
+                                    <input asp-for="OrderHeader.State" class="custom-form-control" />
+                                    <span asp-validation-for="OrderHeader.State" class="custom-validation-message"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="OrderHeader.PostalCode" class="custom-form-label">Postal Code</label>
+                                    <input asp-for="OrderHeader.PostalCode" class="custom-form-control" />
+                                    <span asp-validation-for="OrderHeader.PostalCode" class="custom-validation-message"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="sticky-container">
+                        <h2 style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 1.5rem;">
+                            Order Summary
+                        </h2>
+
+                        <div style="display: grid; gap: 1rem;">
+                            @foreach (var details in Model.ListCart)
+                            {
+                                <div class="product-item">
+                                    <div>
+                                        <h3 class="product-title">@details.Product.Title</h3>
+                                        <p class="product-quantity">Quantity: @details.Count</p>
+                                    </div>
+                                    <span style="font-weight: 500;">₹@((details.Price * details.Count).ToString("F2"))</span>
+                                </div>
+                            }
+
+                            <div class="flex-between" style="padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                                <span style="color: #4b5563;">Total (INR)</span>
+                                <span class="total-amount">₹@Model.OrderHeader.OrderTotal.ToString("F2")</span>
+                            </div>
+
+                            <div class="delivery-info">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg class="icon-small" fill="none" stroke="#2563eb" viewBox="0 0 22 22" width="22" height="22" style="vertical-align: middle;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p style="font-size: 0.875rem; color: #1e40af; margin: 0;">
+                                        Estimated delivery: @DateTime.Now.AddDays(7).ToShortDateString() - @DateTime.Now.AddDays(14).ToShortDateString()
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <button type="submit" class="submit-button">
+                                <span style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                    <span>Place Order</span>
+                                    <svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </span>
+                            </button>
+                      </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
